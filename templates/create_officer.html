@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Register Officer · PSMS{% endblock %}
+{% block page_title %}Register New Officer Account{% endblock %}
+{% block content %}
+<div class="panel p-4" style="max-width:600px;">
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+            {% for e in form.username.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.full_name.label(class="form-label") }}
+            {{ form.full_name(class="form-control") }}
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.officer_id.label(class="form-label") }}
+                {{ form.officer_id(class="form-control") }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.rank.label(class="form-label") }}
+                {{ form.rank(class="form-control") }}
+            </div>
+        </div>
+        <div class="mb-3">
+            {{ form.role.label(class="form-label") }}
+            {{ form.role(class="form-select") }}
+        </div>
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+            <div class="form-text">The officer should change this password after their first login.</div>
+            {% for e in form.password.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}

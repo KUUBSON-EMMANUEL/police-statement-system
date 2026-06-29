@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · PSMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-blue">
+            <i class="bi bi-file-earmark-text"></i>
+            <div>
+                <h3>{{ total_statements }}</h3>
+                <p>Total Statements</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-green">
+            <i class="bi bi-folder2-open"></i>
+            <div>
+                <h3>{{ total_cases }}</h3>
+                <p>Total Cases</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-orange">
+            <i class="bi bi-people"></i>
+            <div>
+                <h3>{{ total_officers }}</h3>
+                <p>Registered Officers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-red">
+            <i class="bi bi-person-exclamation"></i>
+            <div>
+                <h3>{{ type_counts.Suspect }}</h3>
+                <p>Suspect Statements</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="panel">
+            <div class="panel-header">
+                <h6 class="mb-0">Recent Statements</h6>
+                <a href="{{ url_for('search.search_statements') }}" class="btn btn-sm btn-outline-primary">View all</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Statement ID</th>
+                            <th>Case Number</th>
+                            <th>Person</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in recent_statements %}
+                        <tr>
+                            <td>{{ s.statement_id }}</td>
+                            <td>{{ s.case.case_number }}</td>
+                            <td>{{ s.person_name }}</td>
+                            <td><span class="badge type-badge type-{{ s.statement_type|lower }}">{{ s.statement_type }}</span></td>
+                            <td>{{ s.statement_date }}</td>
+                            <td><a href="{{ url_for('statements.view_statement', statement_id=s.id) }}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">No statements recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel">
+            <div class="panel-header"><h6 class="mb-0">Statements by Type</h6></div>
+            <ul class="list-group list-group-flush">
+                {% for label, count in type_counts.items() %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ label }}
+                    <span class="badge text-bg-primary rounded-pill">{{ count }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="panel mt-3">
+            <div class="panel-header"><h6 class="mb-0">Quick Actions</h6></div>
+            <div class="p-3 d-grid gap-2">
+                <a href="{{ url_for('statements.add_statement') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Record New Statement</a>
+                <a href="{{ url_for('search.search_statements') }}" class="btn btn-outline-secondary"><i class="bi bi-search"></i> Search Statements</a>
+                {% if current_user.is_admin() %}
+                <a href="{{ url_for('auth.create_officer') }}" class="btn btn-outline-secondary"><i class="bi bi-person-plus"></i> Register Officer</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Statement {{ statement.statement_id }} · PSMS{% endblock %}
+{% block page_title %}Statement — {{ statement.statement_id }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+    <div>
+        <span class="badge type-badge type-{{ statement.statement_type|lower }} fs-6">{{ statement.statement_type }}</span>
+        <span class="text-muted ms-2">Recorded {{ statement.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('statements.print_statement', statement_id=statement.id) }}" target="_blank" class="btn btn-outline-dark btn-sm"><i class="bi bi-printer"></i> Print</a>
+        <a href="{{ url_for('statements.download_pdf', statement_id=statement.id) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-pdf"></i> Download PDF</a>
+        <a href="{{ url_for('statements.edit_statement', statement_id=statement.id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+        {% if current_user.is_admin() %}
+        <form action="{{ url_for('statements.delete_statement', statement_id=statement.id) }}" method="POST" onsubmit="return confirm('Permanently delete this statement? This cannot be undone.');" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="panel mb-3">
+            <div class="panel-header"><h6 class="mb-0">Case Information</h6></div>
+            <div class="p-3 row">
+                <div class="col-md-6"><strong>Case Number:</strong> {{ statement.case.case_number }}</div>
+                <div class="col-md-6"><strong>Case Type:</strong> {{ statement.case.case_type }}</div>
+                <div class="col-md-6"><strong>Date Reported:</strong> {{ statement.case.date_reported }}</div>
+                <div class="col-md-6"><strong>Station:</strong> {{ statement.case.station_name }}</div>
+            </div>
+        </div>
+
+        <div class="panel mb-3">
+            <div class="panel-header"><h6 class="mb-0">Person Giving Statement</h6></div>
+            <div class="p-3 row">
+                <div class="col-md-6"><strong>Full Name:</strong> {{ statement.person_name }}</div>
+                <div class="col-md-6"><strong>Gender:</strong> {{ statement.gender or "-" }}</div>
+                <div class="col-md-6"><strong>Date of Birth:</strong> {{ statement.dob or "-" }}</div>
+                <div class="col-md-6"><strong>National ID:</strong> {{ statement.national_id or "-" }}</div>
+                <div class="col-md-6"><strong>Occupation:</strong> {{ statement.occupation or "-" }}</div>
+                <div class="col-md-6"><strong>Phone:</strong> {{ statement.phone or "-" }}</div>
+                <div class="col-md-12"><strong>Address:</strong> {{ statement.address or "-" }}</div>
+            </div>
+        </div>
+
+        <div class="panel mb-3">
+            <div class="panel-header"><h6 class="mb-0">Statement</h6></div>
+            <div class="p-3">
+                <p class="mb-2"><strong>Date/Time:</strong> {{ statement.statement_date }} at {{ statement.statement_time }}</p>
+                <p class="statement-text">{{ statement.statement_text }}</p>
+                {% if statement.evidence %}
+                <hr>
+                <p class="mb-1"><strong>Evidence Description:</strong></p>
+                <p>{{ statement.evidence }}</p>
+                {% endif %}
+                {% if statement.notes %}
+                <hr>
+                <p class="mb-1"><strong>Additional Notes:</strong></p>
+                <p>{{ statement.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if statement.evidence_file or statement.photo_file %}
+        <div class="panel mb-3">
+            <div class="panel-header"><h6 class="mb-0">Attachments</h6></div>
+            <div class="p-3 d-flex gap-3 flex-wrap">
+                {% if statement.evidence_file %}
+                <a href="{{ url_for('static', filename=statement.evidence_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-paperclip"></i> Evidence File</a>
+                {% endif %}
+                {% if statement.photo_file %}
+                <a href="{{ url_for('static', filename=statement.photo_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-image"></i> Photo Attachment</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel">
+            <div class="panel-header"><h6 class="mb-0">Recording Officer</h6></div>
+            <div class="p-3">
+                <p class="mb-1"><strong>Name:</strong> {{ statement.officer.full_name }}</p>
+                <p class="mb-1"><strong>Rank:</strong> {{ statement.officer.rank or "-" }}</p>
+                <p class="mb-1"><strong>Officer ID:</strong> {{ statement.officer.officer_id or "-" }}</p>
+            </div>
+        </div>
+        {% if statement.signature_data %}
+        <div class="panel mt-3">
+            <div class="panel-header"><h6 class="mb-0">Digital Signature</h6></div>
+            <div class="p-3 text-center">
+                <img src="{{ statement.signature_data }}" alt="Officer Signature" class="img-fluid border rounded">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

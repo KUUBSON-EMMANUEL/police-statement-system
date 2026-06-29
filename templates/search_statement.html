@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Search Statements · PSMS{% endblock %}
+{% block page_title %}Search Statements{% endblock %}
+{% block content %}
+
+<div class="panel p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-3">
+            {{ form.case_number.label(class="form-label") }}
+            {{ form.case_number(class="form-control") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.person_name.label(class="form-label") }}
+            {{ form.person_name(class="form-control") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.statement_id.label(class="form-label") }}
+            {{ form.statement_id(class="form-control") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.officer_name.label(class="form-label") }}
+            {{ form.officer_name(class="form-control") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.statement_type.label(class="form-label") }}
+            {{ form.statement_type(class="form-select") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.date_from.label(class="form-label") }}
+            {{ form.date_from(class="form-control") }}
+        </div>
+        <div class="col-md-3">
+            {{ form.date_to.label(class="form-label") }}
+            {{ form.date_to(class="form-control") }}
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button>
+        </div>
+    </form>
+</div>
+
+{% if searched %}
+<div class="panel">
+    <div class="panel-header">
+        <h6 class="mb-0">{{ results|length }} result(s) found</h6>
+        {% if results %}
+        <a href="{{ url_for('search.export_csv', **request.args) }}" class="btn btn-sm btn-outline-success"><i class="bi bi-filetype-csv"></i> Export CSV</a>
+        {% endif %}
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Statement ID</th>
+                    <th>Case Number</th>
+                    <th>Person</th>
+                    <th>Type</th>
+                    <th>Officer</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in results %}
+                <tr>
+                    <td>{{ s.statement_id }}</td>
+                    <td>{{ s.case.case_number }}</td>
+                    <td>{{ s.person_name }}</td>
+                    <td><span class="badge type-badge type-{{ s.statement_type|lower }}">{{ s.statement_type }}</span></td>
+                    <td>{{ s.officer.full_name }}</td>
+                    <td>{{ s.statement_date }}</td>
+                    <td class="d-flex gap-1">
+                        <a href="{{ url_for('statements.view_statement', statement_id=s.id) }}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>
+                        <a href="{{ url_for('statements.edit_statement', statement_id=s.id) }}" class="btn btn-sm btn-light"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No statements matched your search criteria.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

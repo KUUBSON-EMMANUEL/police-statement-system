@@ -1,0 +1,97 @@
+{% macro field(f, col="col-md-6") %}
+<div class="{{ col }} mb-3">
+    {{ f.label(class="form-label") }}
+    {% if f.flags.required %}<span class="text-danger">*</span>{% endif %}
+    {{ f(class="form-control" + (" is-invalid" if f.errors else "")) }}
+    {% for error in f.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    {% if f.description %}<div class="form-text">{{ f.description }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro select_field(f, col="col-md-6") %}
+<div class="{{ col }} mb-3">
+    {{ f.label(class="form-label") }}
+    {{ f(class="form-select" + (" is-invalid" if f.errors else "")) }}
+    {% for error in f.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+</div>
+{% endmacro %}
+
+<form method="POST" enctype="multipart/form-data" novalidate id="statementForm">
+    {{ form.hidden_tag() }}
+    {{ form.signature_data }}
+
+    <div class="form-section">
+        <h6 class="section-title"><i class="bi bi-folder2"></i> Case Information</h6>
+        <div class="row">
+            {{ field(form.case_number) }}
+            {{ select_field(form.case_type) }}
+            {{ field(form.date_reported) }}
+            {{ field(form.station_name) }}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h6 class="section-title"><i class="bi bi-person-badge"></i> Person Giving Statement</h6>
+        <div class="row">
+            {{ field(form.person_name) }}
+            {{ select_field(form.gender, col="col-md-3") }}
+            {{ field(form.dob, col="col-md-3") }}
+            {{ field(form.national_id, col="col-md-6") }}
+            {{ field(form.occupation, col="col-md-6") }}
+            {{ field(form.phone, col="col-md-6") }}
+            {{ field(form.address, col="col-md-12") }}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h6 class="section-title"><i class="bi bi-chat-square-text"></i> Statement Details</h6>
+        <div class="row">
+            {{ field(form.statement_date, col="col-md-3") }}
+            {{ field(form.statement_time, col="col-md-3") }}
+            {{ select_field(form.statement_type, col="col-md-6") }}
+            {{ field(form.statement_text, col="col-md-12") }}
+            {{ field(form.evidence, col="col-md-12") }}
+            {{ field(form.notes, col="col-md-12") }}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h6 class="section-title"><i class="bi bi-paperclip"></i> Attachments &amp; Signature</h6>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.evidence_file.label(class="form-label") }}
+                {{ form.evidence_file(class="form-control") }}
+                {% for error in form.evidence_file.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                {% if statement and statement.evidence_file %}
+                    <div class="form-text">Current file: <a href="{{ url_for('static', filename=statement.evidence_file) }}" target="_blank">view attachment</a></div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.photo_file.label(class="form-label") }}
+                {{ form.photo_file(class="form-control") }}
+                {% for error in form.photo_file.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                {% if statement and statement.photo_file %}
+                    <div class="form-text">Current photo: <a href="{{ url_for('static', filename=statement.photo_file) }}" target="_blank">view photo</a></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Digital Officer Signature</label>
+            <div class="signature-pad-wrapper">
+                <canvas id="signaturePad" width="500" height="150"></canvas>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSignature"><i class="bi bi-eraser"></i> Clear Signature</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4 mb-5">
+        {{ form.submit(class="btn btn-primary px-4") }}
+        <button type="reset" class="btn btn-outline-secondary px-4">Reset</button>
+        {% if statement %}
+        <a href="{{ url_for('statements.print_statement', statement_id=statement.id) }}" target="_blank" class="btn btn-outline-dark px-4"><i class="bi bi-printer"></i> Print</a>
+        {% endif %}
+    </div>
+</form>

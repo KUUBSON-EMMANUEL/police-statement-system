@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Edit Statement {{ statement.statement_id }} · PSMS{% endblock %}
+{% block page_title %}Edit Statement — {{ statement.statement_id }}{% endblock %}
+{% block content %}
+<div class="panel p-4">
+    {% include "_statement_form.html" %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/signature_pad.js') }}"></script>
+{% endblock %}

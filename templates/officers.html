@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Officers · PSMS{% endblock %}
+{% block page_title %}Registered Officers{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{{ url_for('auth.create_officer') }}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus"></i> Register Officer</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Officer ID</th>
+                    <th>Rank</th>
+                    <th>Role</th>
+                    <th>Statements Filed</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in officers %}
+                <tr>
+                    <td>{{ o.username }}</td>
+                    <td>{{ o.full_name }}</td>
+                    <td>{{ o.officer_id or "-" }}</td>
+                    <td>{{ o.rank or "-" }}</td>
+                    <td><span class="badge text-bg-{{ 'dark' if o.role=='admin' else 'secondary' }}">{{ o.role|capitalize }}</span></td>
+                    <td>{{ o.statements.count() }}</td>
+                    <td>{{ o.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No officers registered yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
